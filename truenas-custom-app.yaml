@@ -21,15 +21,15 @@ services:
     container_name: clinica_app
     restart: unless-stopped
     ports:
-      # Porta externa no TrueNAS (8085) mapeada para a porta 80 interna do container.
-      # Altere 8085 se desejar outra porta livre no seu TrueNAS.
-      - "8085:80"
+      # Porta externa no TrueNAS (8090) mapeada para a porta 80 interna do container.
+      # Altere 8090 se desejar outra porta livre no seu TrueNAS (ex: 8088, 8095).
+      - "8090:80"
     environment:
       APP_NAME: "Clínica Fabris"
       APP_ENV: production
       APP_DEBUG: "false"
       APP_KEY: "base64:9dHDOIV7xhkPSeEcjxOKIPU9SPrHwYekOELv+TMSRY8="
-      APP_URL: "http://192.168.1.134:8085"
+      APP_URL: "http://192.168.1.134:8090"
       APP_TIMEZONE: "America/Sao_Paulo"
       APP_LOCALE: "pt_BR"
 
@@ -91,11 +91,11 @@ networks:
 
 # ------------------------------------------------------------------------------
 # Configuração do Botão "Web Portal" no TrueNAS SCALE
-# Faz o botão "Web Portal" do TrueNAS abrir diretamente a porta 8085
+# Faz o botão "Web Portal" do TrueNAS abrir diretamente a porta 8090
 # ------------------------------------------------------------------------------
 x-portals:
   - host: 0.0.0.0
     name: Web UI
     path: /
-    port: 8085
+    port: 8090
     scheme: http
