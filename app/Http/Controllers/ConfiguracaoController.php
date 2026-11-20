@@ -45,6 +45,13 @@ class ConfiguracaoController extends Controller
 
         $validated['politica_falta_cobra_sessao'] = $request->boolean('politica_falta_cobra_sessao', true);
 
+        if (strlen($validated['horario_abertura']) === 5) {
+            $validated['horario_abertura'] .= ':00';
+        }
+        if (strlen($validated['horario_fechamento']) === 5) {
+            $validated['horario_fechamento'] .= ':00';
+        }
+
         $old = $config->toArray();
         $config->update($validated);
 

@@ -136,38 +136,56 @@
                 Horários de Funcionamento & Políticas de Agenda
             </h2>
 
-            <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
-                <div class="sm:col-span-3">
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Horário de Abertura *</label>
-                    <input type="time" name="horario_abertura" value="{{ old('horario_abertura', $config->horario_abertura) }}" required
-                           class="w-full text-xs rounded-xl border border-slate-300 p-2.5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                <div class="flex flex-col justify-end">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                        <i data-lucide="sun" class="w-3.5 h-3.5 text-amber-500"></i>
+                        <span>Horário de Abertura *</span>
+                    </label>
+                    <input type="time" name="horario_abertura" value="{{ old('horario_abertura', substr($config->horario_abertura, 0, 5)) }}" required
+                           class="w-full text-xs rounded-xl border border-slate-300 p-2.5 focus:ring-teal-600 focus:border-teal-600">
                 </div>
 
-                <div class="sm:col-span-3">
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Horário de Fechamento *</label>
-                    <input type="time" name="horario_fechamento" value="{{ old('horario_fechamento', $config->horario_fechamento) }}" required
-                           class="w-full text-xs rounded-xl border border-slate-300 p-2.5">
+                <div class="flex flex-col justify-end">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                        <i data-lucide="moon" class="w-3.5 h-3.5 text-indigo-500"></i>
+                        <span>Horário de Fechamento *</span>
+                    </label>
+                    <input type="time" name="horario_fechamento" value="{{ old('horario_fechamento', substr($config->horario_fechamento, 0, 5)) }}" required
+                           class="w-full text-xs rounded-xl border border-slate-300 p-2.5 focus:ring-teal-600 focus:border-teal-600">
                 </div>
 
-                <div class="sm:col-span-3">
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Intervalo Padrão da Agenda (min)</label>
-                    <input type="number" name="intervalo_agenda_minutos" value="{{ old('intervalo_agenda_minutos', $config->intervalo_agenda_minutos) }}" min="10" max="120" step="5" required
-                           class="w-full text-xs rounded-xl border border-slate-300 p-2.5">
+                <div class="flex flex-col justify-end">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                        <i data-lucide="timer" class="w-3.5 h-3.5 text-teal-600"></i>
+                        <span>Intervalo da Agenda</span>
+                    </label>
+                    <div class="relative">
+                        <input type="number" name="intervalo_agenda_minutos" value="{{ old('intervalo_agenda_minutos', $config->intervalo_agenda_minutos) }}" min="10" max="120" step="5" required
+                               class="w-full text-xs rounded-xl border border-slate-300 p-2.5 pr-12 focus:ring-teal-600 focus:border-teal-600">
+                        <span class="absolute inset-y-0 right-3 flex items-center text-[11px] font-semibold text-slate-400 pointer-events-none">min</span>
+                    </div>
                 </div>
 
-                <div class="sm:col-span-3">
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Antecedência Cancelamento (horas)</label>
-                    <input type="number" name="politica_cancelamento_horas" value="{{ old('politica_cancelamento_horas', $config->politica_cancelamento_horas) }}" min="0" required
-                           class="w-full text-xs rounded-xl border border-slate-300 p-2.5">
+                <div class="flex flex-col justify-end">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                        <i data-lucide="calendar-x" class="w-3.5 h-3.5 text-rose-500"></i>
+                        <span>Prazo Cancelamento</span>
+                    </label>
+                    <div class="relative">
+                        <input type="number" name="politica_cancelamento_horas" value="{{ old('politica_cancelamento_horas', $config->politica_cancelamento_horas) }}" min="0" required
+                               class="w-full text-xs rounded-xl border border-slate-300 p-2.5 pr-14 focus:ring-teal-600 focus:border-teal-600">
+                        <span class="absolute inset-y-0 right-3 flex items-center text-[11px] font-semibold text-slate-400 pointer-events-none">horas</span>
+                    </div>
                 </div>
 
-                <div class="sm:col-span-12 pt-2">
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center gap-3">
+                <div class="sm:col-span-2 lg:col-span-4 pt-2">
+                    <div class="p-3.5 bg-slate-50 hover:bg-teal-50/40 transition rounded-xl border border-slate-200 flex items-center gap-3">
                         <input type="checkbox" id="politica_falta_cobra_sessao" name="politica_falta_cobra_sessao" value="1"
                                {{ old('politica_falta_cobra_sessao', $config->politica_falta_cobra_sessao) ? 'checked' : '' }}
-                               class="rounded border-slate-300 text-teal-600 focus:ring-teal-500">
-                        <label for="politica_falta_cobra_sessao" class="text-xs text-slate-700 font-semibold cursor-pointer">
-                            Política de Falta: Dar baixa na sessão do pacote quando o paciente faltar sem aviso prévio.
+                               class="w-4 h-4 rounded border-slate-300 text-teal-600 accent-teal-600 focus:ring-teal-500 cursor-pointer">
+                        <label for="politica_falta_cobra_sessao" class="text-xs text-slate-700 font-medium cursor-pointer select-none">
+                            <strong class="font-semibold text-slate-900">Política de Falta:</strong> Dar baixa na sessão do pacote quando o paciente faltar sem aviso prévio.
                         </label>
                     </div>
                 </div>
