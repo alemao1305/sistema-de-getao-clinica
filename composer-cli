@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Helper script to run Composer commands seamlessly
+if command -v composer >/dev/null 2>&1; then
+    composer "$@"
+else
+    docker run --rm -u $(id -u):$(id -g) -v "$(pwd):/app" -w /app composer:latest "$@"
+fi
