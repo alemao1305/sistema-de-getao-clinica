@@ -3,10 +3,10 @@
 # Configuração para "Custom App" do TrueNAS SCALE (Docker Compose)
 # ==============================================================================
 # Instruções de Uso no TrueNAS SCALE:
-# 1. Acesse no TrueNAS: Apps -> Discover Apps -> botão "Custom App" (canto superior direito).
+# 1. Acesse: Apps -> Discover Apps -> botão "Custom App" (canto superior direito).
 # 2. Application Name: clinica
 # 3. Cole o conteúdo deste arquivo no editor YAML.
-# 4. Ajuste a porta externa (ex: 8085) e o caminho dos datasets ZFS conforme seu pool (ex: /mnt/server/apps/...).
+# 4. Esta configuração usa Volumes Gerenciados do Docker (não precisa criar pastas no ZFS).
 # ==============================================================================
 
 version: "3.8"
@@ -18,11 +18,9 @@ services:
   # ----------------------------------------------------------------------------
   app:
     image: melloinfra/clinica:latest
-    container_name: clinica_app
     restart: unless-stopped
     ports:
-      # Porta externa no TrueNAS (8090) mapeada para a porta 80 interna do container.
-      # Altere 8090 se desejar outra porta livre no seu TrueNAS (ex: 8088, 8095).
+      # Porta externa no TrueNAS (8090) mapeada para a porta 80 interna do container
       - "8090:80"
     environment:
       APP_NAME: "Clínica Fabris"
@@ -41,19 +39,18 @@ services:
       DB_USERNAME: clinica_user
       DB_PASSWORD: "clinica_secure_password_2026"
 
-      # Sessões e Cache no banco de dados para alta confiabilidade
+      # Sessões e Cache no banco de dados para alta estabilidade
       SESSION_DRIVER: database
       SESSION_SECURE_COOKIE: "false"
       CACHE_STORE: database
 
-      # Executa as migrations e seeders essenciais da clínica automaticamente
+      # Executa as migrations e seeders da clínica automaticamente
       RUN_MIGRATIONS: "true"
     volumes:
-      # Armazenamento persistente para prontuários, uploads de pacientes e logs
-      - /mnt/server/apps/clinica/storage:/var/www/storage
+      # Volume persistente gerenciado (evita erros de permissão no ZFS)
+      - clinica_storage:/var/www/storage
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     networks:
       - clinica_net
 
@@ -62,7 +59,6 @@ services:
   # ----------------------------------------------------------------------------
   db:
     image: mariadb:10.11
-    container_name: clinica_db
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: "root_clinica_password_2026"
@@ -70,15 +66,19 @@ services:
       MYSQL_USER: clinica_user
       MYSQL_PASSWORD: "clinica_secure_password_2026"
     volumes:
-      # Armazenamento persistente dos dados do banco no dataset ZFS do TrueNAS
-      - /mnt/server/apps/clinica/mariadb:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      # Volume persistente gerenciado para os dados do banco
+      - clinica_mariadb:/var/lib/mysql
     networks:
       - clinica_net
+
+# ------------------------------------------------------------------------------
+# Volumes Persistentes do Docker
+# ------------------------------------------------------------------------------
+volumes:
+  clinica_storage:
+    name: clinica_storage
+  clinica_mariadb:
+    name: clinica_mariadb
 
 # ------------------------------------------------------------------------------
 # Rede Interna Isolada
@@ -91,7 +91,6 @@ networks:
 
 # ------------------------------------------------------------------------------
 # Configuração do Botão "Web Portal" no TrueNAS SCALE
-# Faz o botão "Web Portal" do TrueNAS abrir diretamente a porta 8090
 # ------------------------------------------------------------------------------
 x-portals:
   - host: 0.0.0.0
