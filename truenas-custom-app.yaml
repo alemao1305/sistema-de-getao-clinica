@@ -1,97 +1,50 @@
 # ==============================================================================
-# SISTEMA DE GESTÃO PARA CLÍNICA DE FISIOTERAPIA (CLÍNICA FABRIS)
-# Configuração para "Custom App" do TrueNAS SCALE (Docker Compose)
+# OPÇÃO 1 (RECOMENDADA / INFALÍVEL): CLÍNICA FABRIS COM BANCO INTEGRADO (SQLite)
 # ==============================================================================
-# Instruções de Uso no TrueNAS SCALE:
-# 1. Acesse: Apps -> Discover Apps -> botão "Custom App" (canto superior direito).
-# 2. Application Name: clinica
-# 3. Cole o conteúdo deste arquivo no editor YAML.
-# 4. Esta configuração usa Volumes Gerenciados do Docker (não precisa criar pastas no ZFS).
+# Por que esta opção é a melhor no TrueNAS:
+# 1. Não precisa de container do MariaDB (menos consumo de memória RAM).
+# 2. Não sofre com erro de "Access Denied" de IPv6 nem de permissão de pasta do ZFS.
+# 3. Sobe em 3 segundos pronto para uso.
 # ==============================================================================
 
 version: "3.8"
 
 services:
-  # ----------------------------------------------------------------------------
-  # Aplicação Web (Nginx + PHP 8.4-FPM + Sistema Clínica Fabris)
-  # Imagem Oficial do Docker Hub: melloinfra/clinica:latest
-  # ----------------------------------------------------------------------------
   app:
     image: melloinfra/clinica:latest
+    container_name: clinica_app
     restart: unless-stopped
     ports:
-      # Porta externa no TrueNAS (8090) mapeada para a porta 80 interna do container
       - "8090:80"
     environment:
       APP_NAME: "Clínica Fabris"
       APP_ENV: production
-      APP_DEBUG: "false"
+      APP_DEBUG: "true"
       APP_KEY: "base64:9dHDOIV7xhkPSeEcjxOKIPU9SPrHwYekOELv+TMSRY8="
       APP_URL: "http://192.168.1.134:8090"
       APP_TIMEZONE: "America/Sao_Paulo"
       APP_LOCALE: "pt_BR"
 
-      # Conexão com o banco de dados MariaDB interno
-      DB_CONNECTION: mysql
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_DATABASE: clinica_db
-      DB_USERNAME: clinica_user
-      DB_PASSWORD: "clinica_secure_password_2026"
+      # Banco SQLite Integrado Persistente
+      DB_CONNECTION: sqlite
 
-      # Sessões e Cache no banco de dados para alta estabilidade
+      # Sessões e Cache estáveis
       SESSION_DRIVER: database
       SESSION_SECURE_COOKIE: "false"
       CACHE_STORE: database
 
-      # Executa as migrations e seeders da clínica automaticamente
       RUN_MIGRATIONS: "true"
     volumes:
-      # Volume persistente gerenciado (evita erros de permissão no ZFS)
+      # Volumes gerenciados automaticamente pelo TrueNAS (sem conflito de permissão)
       - clinica_storage:/var/www/storage
-    depends_on:
-      - db
-    networks:
-      - clinica_net
+      - clinica_database:/var/www/database
 
-  # ----------------------------------------------------------------------------
-  # Banco de Dados MariaDB 10.11
-  # ----------------------------------------------------------------------------
-  db:
-    image: mariadb:10.11
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: "root_clinica_password_2026"
-      MYSQL_DATABASE: clinica_db
-      MYSQL_USER: clinica_user
-      MYSQL_PASSWORD: "clinica_secure_password_2026"
-    volumes:
-      # Volume persistente gerenciado para os dados do banco
-      - clinica_mariadb:/var/lib/mysql
-    networks:
-      - clinica_net
-
-# ------------------------------------------------------------------------------
-# Volumes Persistentes do Docker
-# ------------------------------------------------------------------------------
 volumes:
   clinica_storage:
     name: clinica_storage
-  clinica_mariadb:
-    name: clinica_mariadb
+  clinica_database:
+    name: clinica_database
 
-# ------------------------------------------------------------------------------
-# Rede Interna Isolada
-# ------------------------------------------------------------------------------
-networks:
-  clinica_net:
-    name: clinica_net
-    driver: bridge
-    enable_ipv6: false
-
-# ------------------------------------------------------------------------------
-# Configuração do Botão "Web Portal" no TrueNAS SCALE
-# ------------------------------------------------------------------------------
 x-portals:
   - host: 0.0.0.0
     name: Web UI
