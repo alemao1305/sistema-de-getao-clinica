@@ -78,6 +78,28 @@
                 </a>
                 @endif
 
+                <!-- Catálogo de Serviços, Produtos e Pacotes -->
+                @if(auth()->user()->isProprietaria() || auth()->user()->isRecepcao() || auth()->user()->hasPermissionTo('servicos.view') || auth()->user()->hasPermissionTo('configuracoes.manage'))
+                <div class="pt-2">
+                    <p class="px-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Catálogo & Itens</p>
+                </div>
+                <a href="{{ route('servicos.index') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors {{ request()->routeIs('servicos*') ? 'bg-teal-600 text-white font-semibold shadow-sm' : 'hover:bg-slate-800 hover:text-white text-slate-300' }}">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    <span>Serviços & Procedimentos</span>
+                </a>
+                <a href="{{ route('produtos.index') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors {{ request()->routeIs('produtos*') ? 'bg-teal-600 text-white font-semibold shadow-sm' : 'hover:bg-slate-800 hover:text-white text-slate-300' }}">
+                    <i data-lucide="package" class="w-5 h-5"></i>
+                    <span>Produtos & Estoque</span>
+                </a>
+                <a href="{{ route('pacotes.index') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors {{ request()->routeIs('pacotes*') ? 'bg-teal-600 text-white font-semibold shadow-sm' : 'hover:bg-slate-800 hover:text-white text-slate-300' }}">
+                    <i data-lucide="tags" class="w-5 h-5"></i>
+                    <span>Pacotes de Sessões</span>
+                </a>
+                @endif
+
                 <!-- Vendas & Pacotes -->
                 @if(auth()->user()->isProprietaria() || auth()->user()->isRecepcao() || auth()->user()->isFinanceiro() || auth()->user()->hasPermissionTo('vendas.view'))
                 <div class="pt-2">

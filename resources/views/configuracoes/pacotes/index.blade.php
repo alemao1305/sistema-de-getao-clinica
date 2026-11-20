@@ -46,6 +46,25 @@
         this.modalOpen = true;
     }
 }">
+    <!-- Navegação de Abas do Catálogo Geral -->
+    <div class="flex items-center gap-2 border-b border-slate-200 pb-3">
+        <a href="{{ route('servicos.index') }}"
+           class="px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition text-slate-600 hover:bg-slate-100">
+            <i data-lucide="sparkles" class="w-4 h-4 text-slate-500"></i>
+            <span>Serviços & Procedimentos</span>
+        </a>
+        <a href="{{ route('produtos.index') }}"
+           class="px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition text-slate-600 hover:bg-slate-100">
+            <i data-lucide="package" class="w-4 h-4 text-slate-500"></i>
+            <span>Produtos & Estoque</span>
+        </a>
+        <a href="{{ route('pacotes.index') }}"
+           class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition bg-teal-600 text-white shadow-sm">
+            <i data-lucide="tags" class="w-4 h-4 text-white"></i>
+            <span>Pacotes de Sessões</span>
+        </a>
+    </div>
+
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

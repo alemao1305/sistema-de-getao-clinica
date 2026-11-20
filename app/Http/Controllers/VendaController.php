@@ -9,6 +9,7 @@ use App\Models\Venda;
 use App\Models\Paciente;
 use App\Models\Pacote;
 use App\Models\Servico;
+use App\Models\Produto;
 use App\Models\PacientePacote;
 use App\Models\FormaPagamento;
 use App\Models\ContaReceber;
@@ -43,16 +44,17 @@ class VendaController extends Controller
         $pacientes = Paciente::where('status', 'ativo')->orderBy('nome')->get();
         $pacotes = Pacote::with('servico')->where('ativo', true)->orderBy('nome')->get();
         $servicos = Servico::where('ativo', true)->orderBy('nome')->get();
+        $produtos = Produto::where('ativo', true)->orderBy('nome')->get();
         $formasPagamento = FormaPagamento::where('ativo', true)->get();
 
-        return view('vendas.create', compact('pacienteId', 'pacientes', 'pacotes', 'servicos', 'formasPagamento'));
+        return view('vendas.create', compact('pacienteId', 'pacientes', 'pacotes', 'servicos', 'produtos', 'formasPagamento'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'paciente_id' => ['required', 'exists:pacientes,id'],
-            'tipo_item' => ['required', 'in:pacote,servico'],
+            'tipo_item' => ['required', 'in:pacote,servico,produto'],
             'item_id' => ['required', 'integer'],
             'valor_subtotal' => ['required', 'numeric', 'min:0'],
             'valor_desconto' => ['nullable', 'numeric', 'min:0'],
@@ -112,6 +114,10 @@ class VendaController extends Controller
                 $servicoId = $pacote->servico_id;
                 $qtdSessoes = $pacote->quantidade_sessoes;
                 $validadeDias = $pacote->validade_dias;
+            } elseif ($validated['tipo_item'] === 'produto') {
+                $produto = Produto::findOrFail($validated['item_id']);
+                $descricaoItem = $produto->nome;
+                $produto->movimentarEstoque('venda', 1, "Venda {$venda->codigo}", $user->id, $venda->id);
             } else {
                 $servico = Servico::findOrFail($validated['item_id']);
                 $descricaoItem = $servico->nome;

@@ -15,6 +15,7 @@
     ],
     pacotes: {{ Js::from($pacotes) }},
     servicos: {{ Js::from($servicos) }},
+    produtos: {{ Js::from($produtos) }},
 
     init() {
         if (this.pacotes.length > 0) {
@@ -23,13 +24,29 @@
         }
     },
 
+    aoMudarTipo() {
+        if (this.tipoItem === 'pacote' && this.pacotes.length > 0) {
+            this.itemId = this.pacotes[0].id;
+        } else if (this.tipoItem === 'servico' && this.servicos.length > 0) {
+            this.itemId = this.servicos[0].id;
+        } else if (this.tipoItem === 'produto' && this.produtos.length > 0) {
+            this.itemId = this.produtos[0].id;
+        } else {
+            this.itemId = '';
+        }
+        this.atualizarPreco();
+    },
+
     atualizarPreco() {
         if (this.tipoItem === 'pacote') {
             const p = this.pacotes.find(x => x.id == this.itemId);
             this.subtotal = p ? parseFloat(p.preco_total) : 0;
-        } else {
+        } else if (this.tipoItem === 'servico') {
             const s = this.servicos.find(x => x.id == this.itemId);
             this.subtotal = s ? parseFloat(s.preco_padrao) : 0;
+        } else if (this.tipoItem === 'produto') {
+            const pr = this.produtos.find(x => x.id == this.itemId);
+            this.subtotal = pr ? parseFloat(pr.preco_venda) : 0;
         }
         this.recalcularPagamentos();
     },
@@ -109,15 +126,16 @@
 
                 <div class="sm:col-span-4">
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Tipo de Item</label>
-                    <select name="tipo_item" x-model="tipoItem" @change="atualizarPreco()" class="w-full text-xs rounded-xl border border-slate-300 p-2.5 focus:ring-teal-600">
+                    <select name="tipo_item" x-model="tipoItem" @change="aoMudarTipo()" class="w-full text-xs rounded-xl border border-slate-300 p-2.5 focus:ring-teal-600">
                         <option value="pacote">Pacote Pré-Pago de Sessões</option>
                         <option value="servico">Consulta / Sessão Avulsa</option>
+                        <option value="produto">Produto Fisioterapêutico (Estoque)</option>
                     </select>
                 </div>
 
-                <!-- Select Dinâmico Pacote ou Serviço -->
+                <!-- Select Dinâmico Pacote, Serviço ou Produto -->
                 <div class="sm:col-span-8">
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Produto / Serviço Selecionado *</label>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Item Selecionado *</label>
                     <template x-if="tipoItem === 'pacote'">
                         <select name="item_id" x-model="itemId" @change="atualizarPreco()" required class="w-full text-xs rounded-xl border border-slate-300 p-2.5 focus:ring-teal-600">
                             <template x-for="pct in pacotes" :key="pct.id">
@@ -129,6 +147,13 @@
                         <select name="item_id" x-model="itemId" @change="atualizarPreco()" required class="w-full text-xs rounded-xl border border-slate-300 p-2.5 focus:ring-teal-600">
                             <template x-for="srv in servicos" :key="srv.id">
                                 <option :value="srv.id" x-text="`${srv.nome} (${srv.duracao_minutos} min - R$ ${parseFloat(srv.preco_padrao).toLocaleString('pt-BR', {minimumFractionDigits: 2})})`"></option>
+                            </template>
+                        </select>
+                    </template>
+                    <template x-if="tipoItem === 'produto'">
+                        <select name="item_id" x-model="itemId" @change="atualizarPreco()" required class="w-full text-xs rounded-xl border border-slate-300 p-2.5 focus:ring-teal-600">
+                            <template x-for="prd in produtos" :key="prd.id">
+                                <option :value="prd.id" x-text="`${prd.nome} (${prd.estoque_atual} ${prd.unidade_medida} em estoque - R$ ${parseFloat(prd.preco_venda).toLocaleString('pt-BR', {minimumFractionDigits: 2})})`"></option>
                             </template>
                         </select>
                     </template>

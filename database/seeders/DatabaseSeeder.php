@@ -370,5 +370,85 @@ class DatabaseSeeder extends Seeder
         foreach ($convenios as $conv) {
             Convenio::firstOrCreate(['nome' => $conv['nome']], $conv);
         }
+
+        // 12. Produtos Fisioterapêuticos e Acessórios
+        $produtos = [
+            [
+                'nome' => 'Faixa Elástica Theraband Nível Médio (Verde)',
+                'codigo_barras' => '7891000100011',
+                'sku' => 'TB-MED-VD',
+                'categoria' => 'Cinesioterapia',
+                'descricao' => 'Faixa de resistência látex para fortalecimento muscular e reabilitação.',
+                'preco_custo' => 18.00,
+                'preco_venda' => 35.00,
+                'estoque_atual' => 25,
+                'estoque_minimo' => 5,
+                'unidade_medida' => 'UN',
+            ],
+            [
+                'nome' => 'Faixa Elástica Theraband Nível Forte (Azul)',
+                'codigo_barras' => '7891000100028',
+                'sku' => 'TB-FOR-AZ',
+                'categoria' => 'Cinesioterapia',
+                'descricao' => 'Faixa elástica de alta resistência para exercícios de propriocepção e força.',
+                'preco_custo' => 22.00,
+                'preco_venda' => 42.00,
+                'estoque_atual' => 18,
+                'estoque_minimo' => 5,
+                'unidade_medida' => 'UN',
+            ],
+            [
+                'nome' => 'Kinesio Tape Bandagem Elástica 5cm x 5m (Bege)',
+                'codigo_barras' => '7891000100035',
+                'sku' => 'KT-BEGE-5M',
+                'categoria' => 'Bandagens & Fitas',
+                'descricao' => 'Fita neuromuscular respirável e hipoalergênica para suporte articular.',
+                'preco_custo' => 20.00,
+                'preco_venda' => 45.00,
+                'estoque_atual' => 30,
+                'estoque_minimo' => 8,
+                'unidade_medida' => 'RL',
+            ],
+            [
+                'nome' => 'Bolsa Térmica em Gel Quente / Frio Reutilizável',
+                'codigo_barras' => '7891000100042',
+                'sku' => 'BT-GEL-MED',
+                'categoria' => 'Termoterapia & Crioterapia',
+                'descricao' => 'Bolsa flexível para aplicação de calor ou gelo no alívio de dores agudas.',
+                'preco_custo' => 12.00,
+                'preco_venda' => 28.00,
+                'estoque_atual' => 15,
+                'estoque_minimo' => 4,
+                'unidade_medida' => 'UN',
+            ],
+            [
+                'nome' => 'Rolo de Liberação Miofascial Foam Roller 33cm',
+                'codigo_barras' => '7891000100059',
+                'sku' => 'RL-MIO-33',
+                'categoria' => 'Liberação Miofascial',
+                'descricao' => 'Rolo texturizado para alívio de nós de tensão muscular e relaxamento.',
+                'preco_custo' => 45.00,
+                'preco_venda' => 89.90,
+                'estoque_atual' => 8,
+                'estoque_minimo' => 3,
+                'unidade_medida' => 'UN',
+            ],
+            [
+                'nome' => 'Bola de Pilates Suíça 65cm com Bomba',
+                'codigo_barras' => '7891000100066',
+                'sku' => 'BL-PIL-65',
+                'categoria' => 'Pilates & Reabilitação',
+                'descricao' => 'Bola antiestouro para estabilização de tronco e fisioterapia motora.',
+                'preco_custo' => 38.00,
+                'preco_venda' => 79.00,
+                'estoque_atual' => 10,
+                'estoque_minimo' => 3,
+                'unidade_medida' => 'UN',
+            ],
+        ];
+
+        foreach ($produtos as $prod) {
+            \App\Models\Produto::firstOrCreate(['nome' => $prod['nome']], $prod);
+        }
     }
 }

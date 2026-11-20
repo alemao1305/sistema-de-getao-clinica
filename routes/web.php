@@ -18,6 +18,7 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\ConvenioController;
+use App\Http\Controllers\ProdutoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -95,6 +96,17 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}', [PacientePacoteController::class, 'show'])->name('show');
         Route::post('/{id}/ajustar', [PacientePacoteController::class, 'ajustarSaldo'])->name('ajustar');
         Route::post('/{id}/ajustar-saldo', [PacientePacoteController::class, 'ajustarSaldo'])->name('ajustar-saldo');
+    });
+
+    // Catálogo de Produtos Fisioterapêuticos & Controle de Estoque
+    Route::prefix('produtos')->name('produtos.')->group(function () {
+        Route::get('/', [ProdutoController::class, 'index'])->name('index');
+        Route::post('/', [ProdutoController::class, 'store'])->name('store');
+        Route::match(['post', 'put'], '/{id}', [ProdutoController::class, 'update'])->name('update');
+        Route::post('/{id}/ajustar-estoque', [ProdutoController::class, 'ajustarEstoque'])->name('ajustar-estoque');
+        Route::post('/{id}/ajustarEstoque', [ProdutoController::class, 'ajustarEstoque'])->name('ajustarEstoque');
+        Route::match(['post', 'patch'], '/{id}/toggle-status', [ProdutoController::class, 'toggleStatus'])->name('toggle-status');
+        Route::match(['post', 'patch'], '/{id}/toggleStatus', [ProdutoController::class, 'toggleStatus'])->name('toggleStatus');
     });
 
     // 6. Financeiro (Contas a Receber, Contas a Pagar, Fluxo de Caixa, Repasses)

@@ -18,6 +18,9 @@
             <a href="{{ route('servicos.index') }}" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold hover:bg-slate-50">
                 Serviços
             </a>
+            <a href="{{ route('produtos.index') }}" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold hover:bg-slate-50">
+                Produtos
+            </a>
             <a href="{{ route('pacotes.index') }}" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold hover:bg-slate-50">
                 Pacotes
             </a>
