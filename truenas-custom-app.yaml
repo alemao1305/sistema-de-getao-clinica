@@ -1,0 +1,101 @@
+# ==============================================================================
+# SISTEMA DE GESTÃO PARA CLÍNICA DE FISIOTERAPIA (CLÍNICA FABRIS)
+# Configuração para "Custom App" do TrueNAS SCALE (Docker Compose)
+# ==============================================================================
+# Instruções de Uso no TrueNAS SCALE:
+# 1. Acesse no TrueNAS: Apps -> Discover Apps -> botão "Custom App" (canto superior direito).
+# 2. Application Name: clinica
+# 3. Cole o conteúdo deste arquivo no editor YAML.
+# 4. Ajuste a porta externa (ex: 8085) e o caminho dos datasets ZFS conforme seu pool (ex: /mnt/server/apps/...).
+# ==============================================================================
+
+version: "3.8"
+
+services:
+  # ----------------------------------------------------------------------------
+  # Aplicação Web (Nginx + PHP 8.4-FPM + Sistema Clínica Fabris)
+  # Imagem Oficial do Docker Hub: melloinfra/clinica:latest
+  # ----------------------------------------------------------------------------
+  app:
+    image: melloinfra/clinica:latest
+    container_name: clinica_app
+    restart: unless-stopped
+    ports:
+      # Porta externa no TrueNAS (8085) mapeada para a porta 80 interna do container.
+      # Altere 8085 se desejar outra porta livre no seu TrueNAS.
+      - "8085:80"
+    environment:
+      APP_NAME: "Clínica Fabris"
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_KEY: "base64:9dHDOIV7xhkPSeEcjxOKIPU9SPrHwYekOELv+TMSRY8="
+      APP_URL: "http://192.168.1.134:8085"
+      APP_TIMEZONE: "America/Sao_Paulo"
+      APP_LOCALE: "pt_BR"
+
+      # Conexão com o banco de dados MariaDB interno
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: clinica_db
+      DB_USERNAME: clinica_user
+      DB_PASSWORD: "clinica_secure_password_2026"
+
+      # Sessões e Cache no banco de dados para alta confiabilidade
+      SESSION_DRIVER: database
+      SESSION_SECURE_COOKIE: "false"
+      CACHE_STORE: database
+
+      # Executa as migrations e seeders essenciais da clínica automaticamente
+      RUN_MIGRATIONS: "true"
+    volumes:
+      # Armazenamento persistente para prontuários, uploads de pacientes e logs
+      - /mnt/server/apps/clinica/storage:/var/www/storage
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - clinica_net
+
+  # ----------------------------------------------------------------------------
+  # Banco de Dados MariaDB 10.11
+  # ----------------------------------------------------------------------------
+  db:
+    image: mariadb:10.11
+    container_name: clinica_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "root_clinica_password_2026"
+      MYSQL_DATABASE: clinica_db
+      MYSQL_USER: clinica_user
+      MYSQL_PASSWORD: "clinica_secure_password_2026"
+    volumes:
+      # Armazenamento persistente dos dados do banco no dataset ZFS do TrueNAS
+      - /mnt/server/apps/clinica/mariadb:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - clinica_net
+
+# ------------------------------------------------------------------------------
+# Rede Interna Isolada
+# ------------------------------------------------------------------------------
+networks:
+  clinica_net:
+    name: clinica_net
+    driver: bridge
+    enable_ipv6: false
+
+# ------------------------------------------------------------------------------
+# Configuração do Botão "Web Portal" no TrueNAS SCALE
+# Faz o botão "Web Portal" do TrueNAS abrir diretamente a porta 8085
+# ------------------------------------------------------------------------------
+x-portals:
+  - host: 0.0.0.0
+    name: Web UI
+    path: /
+    port: 8085
+    scheme: http
