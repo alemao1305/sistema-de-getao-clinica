@@ -113,8 +113,11 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('relatorios')->name('relatorios.')->group(function () {
         Route::get('/', [RelatorioController::class, 'index'])->name('index');
         Route::post('/modelos', [RelatorioController::class, 'salvarModelo'])->name('salvar-modelo');
+        Route::post('/salvar', [RelatorioController::class, 'salvarModelo'])->name('salvar');
         Route::get('/exportar-csv', [RelatorioController::class, 'exportarCsv'])->name('exportar-csv');
+        Route::get('/csv', [RelatorioController::class, 'exportarCsv'])->name('csv');
         Route::get('/imprimir-pdf', [RelatorioController::class, 'imprimirPdf'])->name('imprimir-pdf');
+        Route::get('/pdf', [RelatorioController::class, 'imprimirPdf'])->name('pdf');
     });
 
     // 8. Documentos & Anexos Seguros
