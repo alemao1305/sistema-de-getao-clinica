@@ -68,6 +68,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/atendimento', [AgendaController::class, 'atendimento'])->name('atendimento');
         Route::post('/bloqueios', [AgendaController::class, 'storeBloqueio'])->name('bloqueios.store');
         Route::delete('/bloqueios/{id}', [AgendaController::class, 'destroyBloqueio'])->name('bloqueios.destroy');
+        Route::get('/salas', [SalaController::class, 'index'])->name('salas');
         Route::get('/export/ical', [AgendaController::class, 'exportIcal'])->name('export.ical');
         Route::get('/ical', [AgendaController::class, 'exportIcal'])->name('ical');
     });

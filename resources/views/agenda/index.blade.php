@@ -86,6 +86,16 @@
                 <span class="hidden sm:inline">Bloquear Horário</span>
             </button>
 
+            <!-- Configurar Salas -->
+            @if(auth()->user()->isProprietaria() || auth()->user()->isRecepcao() || auth()->user()->hasPermissionTo('configuracoes.manage'))
+            <a href="{{ route('salas.index') }}"
+               class="px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition"
+               title="Configurar Salas e Boxes de Atendimento">
+                <i data-lucide="door-open" class="w-4 h-4 text-teal-600"></i>
+                <span class="hidden sm:inline">Configurar Salas</span>
+            </a>
+            @endif
+
             <!-- Novo Agendamento -->
             <button @click="modalNovo = true"
                     class="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
@@ -118,15 +128,22 @@
             <!-- Sala Filter -->
             <div class="flex items-center gap-1.5">
                 <label for="f_sala" class="font-semibold text-slate-500">Sala:</label>
-                <select id="f_sala" name="sala_id" onchange="this.form.submit()"
-                        class="rounded-lg border border-slate-300 py-1.5 px-2.5 text-xs focus:ring-teal-600 font-medium">
-                    <option value="">Todas as salas</option>
-                    @foreach($salas as $s)
-                        <option value="{{ $s->id }}" {{ (string)$salaId === (string)$s->id ? 'selected' : '' }}>
-                            {{ $s->nome }}
-                        </option>
-                    @endforeach
-                </select>
+                <div class="flex items-center gap-1">
+                    <select id="f_sala" name="sala_id" onchange="this.form.submit()"
+                            class="rounded-lg border border-slate-300 py-1.5 px-2.5 text-xs focus:ring-teal-600 font-medium">
+                        <option value="">Todas as salas</option>
+                        @foreach($salas as $s)
+                            <option value="{{ $s->id }}" {{ (string)$salaId === (string)$s->id ? 'selected' : '' }}>
+                                {{ $s->nome }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @if(auth()->user()->isProprietaria() || auth()->user()->isRecepcao() || auth()->user()->hasPermissionTo('configuracoes.manage'))
+                    <a href="{{ route('salas.index') }}" class="p-1.5 text-slate-400 hover:text-teal-600 hover:bg-slate-50 rounded-lg transition" title="Configurar e Gerenciar Salas">
+                        <i data-lucide="settings-2" class="w-4 h-4"></i>
+                    </a>
+                    @endif
+                </div>
             </div>
 
             <!-- Status Filter -->
@@ -372,12 +389,19 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Sala de Atendimento</label>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-semibold text-slate-700">Sala de Atendimento</label>
+                            @if(auth()->user()->isProprietaria() || auth()->user()->isRecepcao() || auth()->user()->hasPermissionTo('configuracoes.manage'))
+                            <a href="{{ route('salas.index') }}" target="_blank" class="text-[10px] text-teal-600 hover:text-teal-700 font-semibold hover:underline flex items-center gap-0.5" title="Abrir configuração de salas em nova aba">
+                                <i data-lucide="settings" class="w-3 h-3"></i> Configurar
+                            </a>
+                            @endif
+                        </div>
                         <select name="sala_id" class="w-full text-xs rounded-xl border border-slate-300 p-2.5 focus:ring-teal-600">
                             <option value="">Qualquer sala / Não definida</option>
                             @foreach($salas as $sala)
                                 <option value="{{ $sala->id }}" {{ (string)$salaId === (string)$sala->id ? 'selected' : '' }}>
-                                    {{ $sala->nome }}
+                                    {{ $sala->nome }} (máx: {{ $sala->capacidade_simultanea }})
                                 </option>
                             @endforeach
                         </select>

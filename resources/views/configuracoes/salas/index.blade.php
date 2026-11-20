@@ -40,19 +40,31 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <div class="flex items-center gap-2 text-xs text-slate-500 mb-1">
+                <a href="{{ route('agenda.index') }}" class="hover:text-teal-600 transition flex items-center gap-1 font-medium">
+                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-teal-600"></i> Agenda
+                </a>
+                <span>/</span>
                 <a href="{{ route('configuracoes.index') }}" class="hover:text-teal-600 transition">Configurações</a>
                 <span>/</span>
-                <span class="text-slate-800 font-medium">Salas</span>
+                <span class="text-slate-800 font-semibold">Salas de Atendimento</span>
             </div>
             <h1 class="text-xl font-bold text-slate-900">Salas & Boxes de Atendimento</h1>
-            <p class="text-xs text-slate-500">Gerencie as salas físicas, capacidade simultânea para evitar conflitos na agenda.</p>
+            <p class="text-xs text-slate-500">Gerencie as salas físicas, capacidade simultânea e cores para evitar conflitos na agenda.</p>
         </div>
 
-        <button @click="abrirModalCriacao()"
-                class="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-sm transition">
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            <span>Nova Sala</span>
-        </button>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('agenda.index') }}"
+               class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold transition">
+                <i data-lucide="calendar" class="w-4 h-4 text-teal-600"></i>
+                <span>Voltar à Agenda</span>
+            </a>
+
+            <button @click="abrirModalCriacao()"
+                    class="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-sm transition">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Nova Sala</span>
+            </button>
+        </div>
     </div>
 
     <!-- Lista de Salas -->

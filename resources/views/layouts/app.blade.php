@@ -69,6 +69,15 @@
                 </a>
                 @endif
 
+                <!-- Salas & Boxes de Atendimento -->
+                @if(auth()->user()->isProprietaria() || auth()->user()->isRecepcao() || auth()->user()->hasPermissionTo('configuracoes.manage'))
+                <a href="{{ route('salas.index') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors {{ request()->routeIs('salas*') ? 'bg-teal-600 text-white font-semibold shadow-sm' : 'hover:bg-slate-800 hover:text-white text-slate-300' }}">
+                    <i data-lucide="door-open" class="w-5 h-5"></i>
+                    <span>Salas & Boxes</span>
+                </a>
+                @endif
+
                 <!-- Atendimentos & Prontuário -->
                 @if(auth()->user()->isProprietaria() || auth()->user()->isFisioterapeuta() || auth()->user()->hasPermissionTo('prontuario.view'))
                 <a href="{{ route('prontuarios.index') }}"
