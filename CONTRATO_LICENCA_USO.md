@@ -9,7 +9,7 @@
 
 Este Contrato de Licença de Uso de Software Comercial ("Licença" ou "Contrato") é um instrumento jurídico vinculante celebrado entre:
 
-1. **LICENCIANTE:** **OLINTO LEITE DE MELLO**, pessoa jurídica de direito privado inscrita no CNPJ sob o nº **67.318.714/0001-13**, com sede e domicílio na Comarca de Mongaguá - SP; e
+1. **LICENCIANTE:** **OLINTO LEITE DE MELLO**, brasileiro, desenvolvedor e titular dos direitos autorais do software, pessoa física inscrita no CPF sob o nº **460.736.738-92**, residente e domiciliado na Comarca de Mongaguá - SP; e
 2. **LICENCIADO:** Pessoa física ou jurídica (Clínica, Consultório, Profissional de Saúde ou Empresa Contratante) que adquire a licença de uso do software para gestão de suas operações e atendimentos, devidamente qualificada no Pedido de Compra, Proposta Comercial, Fatura ou Termo de Adesão anexo.
 
 AO INSTALAR, COPIAR, CARREGAR EM CONTAINER (DOCKER/TRUENAS), HOSPEDAR EM NUVEM OU DE QUALQUER FORMA ACESSAR E UTILIZAR ESTE SOFTWARE, O LICENCIADO RECONHECE QUE LEU, COMPREENDEU E CONCORDOU INTEGRALMENTE EM VINCULAR-SE AOS TERMOS E CONDIÇÕES DESTE CONTRATO. SE NÃO CONCORDAR COM QUALQUER DISPOSIÇÃO AQUI CONTIDA, O LICENCIADO NÃO DEVE INSTALAR, EXECUTAR, HOSPEDAR OU UTILIZAR O SOFTWARE.
@@ -153,7 +153,7 @@ AO INSTALAR, COPIAR, CARREGAR EM CONTAINER (DOCKER/TRUENAS), HOSPEDAR EM NUVEM O
 ```text
 ____________________________________________________
 LICENCIANTE: OLINTO LEITE DE MELLO
-CPF:460.736.738-92 
+CPF: 460.736.738-92
 Desenvolvedor & Detentor dos Direitos Autorais
 
 ____________________________________________________
