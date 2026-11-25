@@ -32,8 +32,15 @@ class DashboardController extends Controller
             ->whereDate('data_hora_inicio', $dataHoje)
             ->orderBy('data_hora_inicio', 'asc');
 
+        $pacienteId = null;
         if ($user->isFisioterapeuta()) {
             $agendamentosHojeQuery->where('profissional_id', $user->id);
+        } elseif ($user->isPaciente()) {
+            $paciente = Paciente::where('cpf', $user->cpf)
+                ->when($user->email, fn($q) => $q->orWhere('email', $user->email))
+                ->first();
+            $pacienteId = $paciente ? $paciente->id : -1;
+            $agendamentosHojeQuery->where('paciente_id', $pacienteId);
         }
 
         $agendamentosHoje = $agendamentosHojeQuery->get();
@@ -42,6 +49,8 @@ class DashboardController extends Controller
         $agendamentosPeriodoQuery = Agendamento::whereBetween('data_hora_inicio', [$dataInicio, $dataFim]);
         if ($user->isFisioterapeuta()) {
             $agendamentosPeriodoQuery->where('profissional_id', $user->id);
+        } elseif ($user->isPaciente()) {
+            $agendamentosPeriodoQuery->where('paciente_id', $pacienteId);
         }
 
         $totalAgendamentos = (clone $agendamentosPeriodoQuery)->count();

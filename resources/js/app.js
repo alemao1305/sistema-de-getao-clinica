@@ -2,11 +2,15 @@ import './bootstrap';
 import Alpine from 'alpinejs';
 import { createIcons, icons } from 'lucide';
 import Chart from 'chart.js/auto';
+import { initCepAutoFill, formatCep, fetchCepData } from './cep';
 
 window.Alpine = Alpine;
 window.Chart = Chart;
 window.createIcons = createIcons;
 window.lucideIcons = icons;
+window.initCepAutoFill = initCepAutoFill;
+window.formatCep = formatCep;
+window.fetchCepData = fetchCepData;
 
 // Formatters for Brazilian standard formats
 window.formatCurrency = (value) => {
@@ -21,6 +25,13 @@ window.formatDate = (dateStr) => {
 
 Alpine.start();
 
-document.addEventListener('DOMContentLoaded', () => {
+function bootApp() {
     createIcons({ icons });
-});
+    initCepAutoFill();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootApp);
+} else {
+    bootApp();
+}

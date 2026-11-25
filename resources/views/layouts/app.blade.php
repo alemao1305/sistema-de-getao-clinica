@@ -7,6 +7,13 @@
     <title>@yield('title', 'Painel') - {{ config('app.name', 'Clínica Fabris') }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
@@ -239,6 +246,16 @@
                         <span>{{ now()->locale('pt_BR')->translatedFormat('l, d \d\e F \d\e Y') }}</span>
                     </div>
 
+                    <!-- Botão Alternador de Tema Dark / Light -->
+                    <button type="button"
+                            id="theme-toggle"
+                            onclick="toggleTheme()"
+                            class="p-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 transition flex items-center justify-center"
+                            title="Alternar Modo Escuro / Claro">
+                        <i id="theme-toggle-dark-icon" data-lucide="moon" class="w-4 h-4 text-indigo-400"></i>
+                        <i id="theme-toggle-light-icon" data-lucide="sun" class="w-4 h-4 text-amber-500"></i>
+                    </button>
+
                     <!-- Atalho Novo Paciente / Novo Agendamento -->
                     @if(auth()->user()->isProprietaria() || auth()->user()->isRecepcao() || auth()->user()->hasPermissionTo('agenda.create'))
                     <a href="{{ route('agenda.index', ['novo' => 1]) }}"
@@ -291,5 +308,221 @@
     </div>
 
     @stack('scripts')
+
+    <!-- CEP Mask & Auto-fill Handler Global -->
+    <script>
+    (function() {
+        function formatCep(val) {
+            if (!val) return '';
+            const digits = String(val).replace(/\D/g, '').slice(0, 8);
+            if (digits.length > 5) {
+                return digits.slice(0, 5) + '-' + digits.slice(5);
+            }
+            return digits;
+        }
+
+        function isCepField(el) {
+            if (!el || el.tagName !== 'INPUT') return false;
+            const id = (el.id || '').toLowerCase();
+            const name = (el.name || '').toLowerCase();
+            const ph = (el.placeholder || '').toLowerCase();
+            return id === 'cep' || name === 'cep' || el.dataset.mask === 'cep' || ph.includes('00000');
+        }
+
+        async function fetchAddress(cleanCep) {
+            // 1. ViaCEP
+            try {
+                const res = await fetch('https://viacep.com.br/ws/' + cleanCep + '/json/');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (!data.erro) {
+                        return {
+                            logradouro: data.logradouro || '',
+                            bairro: data.bairro || '',
+                            cidade: data.localidade || '',
+                            estado: data.uf || ''
+                        };
+                    }
+                }
+            } catch (e) {}
+
+            // 2. BrasilAPI
+            try {
+                const res = await fetch('https://brasilapi.com.br/api/cep/v1/' + cleanCep);
+                if (res.ok) {
+                    const data = await res.json();
+                    return {
+                        logradouro: data.street || '',
+                        bairro: data.neighborhood || '',
+                        cidade: data.city || '',
+                        estado: data.state || ''
+                    };
+                }
+            } catch (e) {}
+
+            // 3. Backend fallback
+            try {
+                const res = await fetch('/consulta-cep/' + cleanCep, {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (!data.erro) return data;
+                }
+            } catch (e) {}
+
+            return null;
+        }
+
+        function triggerEvent(el) {
+            if (!el) return;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        function findTargetInputs(cepInput) {
+            const form = cepInput.closest('form') || cepInput.closest('.grid') || document;
+            return {
+                logradouro: form.querySelector('#logradouro, [name="logradouro"], [name="rua"], #rua, [name="endereco"], #endereco'),
+                bairro: form.querySelector('#bairro, [name="bairro"]'),
+                cidade: form.querySelector('#cidade, [name="cidade"], [name="municipio"], #municipio'),
+                estado: form.querySelector('#estado, [name="estado"], [name="uf"], #uf'),
+                numero: form.querySelector('#numero, [name="numero"]'),
+                feedback: form.querySelector('#cep-feedback'),
+                loading: form.querySelector('#cep-loading')
+            };
+        }
+
+        async function processCep(input) {
+            const clean = input.value.replace(/\D/g, '');
+            if (clean.length !== 8) return;
+            if (input._lastFetched === clean) return;
+            input._lastFetched = clean;
+
+            const targets = findTargetInputs(input);
+            if (targets.loading) targets.loading.classList.remove('hidden');
+            if (targets.feedback) {
+                targets.feedback.textContent = 'Buscando endereço...';
+                targets.feedback.className = 'text-[11px] text-slate-500 mt-1 block min-h-[16px]';
+            }
+
+            const data = await fetchAddress(clean);
+
+            if (targets.loading) targets.loading.classList.add('hidden');
+
+            if (data) {
+                if (targets.logradouro && data.logradouro) {
+                    targets.logradouro.value = data.logradouro;
+                    triggerEvent(targets.logradouro);
+                }
+                if (targets.bairro && data.bairro) {
+                    targets.bairro.value = data.bairro;
+                    triggerEvent(targets.bairro);
+                }
+                if (targets.cidade && data.cidade) {
+                    targets.cidade.value = data.cidade;
+                    triggerEvent(targets.cidade);
+                }
+                if (targets.estado && data.estado) {
+                    targets.estado.value = data.estado.toUpperCase();
+                    triggerEvent(targets.estado);
+                }
+                if (targets.feedback) {
+                    targets.feedback.textContent = 'Endereço preenchido com sucesso!';
+                    targets.feedback.className = 'text-[11px] text-emerald-600 font-semibold mt-1 block min-h-[16px]';
+                    setTimeout(() => {
+                        if (targets.feedback.textContent === 'Endereço preenchido com sucesso!') {
+                            targets.feedback.textContent = '';
+                        }
+                    }, 3000);
+                }
+                if (targets.numero) {
+                    targets.numero.focus();
+                }
+            } else {
+                if (targets.feedback) {
+                    targets.feedback.textContent = 'CEP não encontrado. Preencha manualmente.';
+                    targets.feedback.className = 'text-[11px] text-amber-600 font-semibold mt-1 block min-h-[16px]';
+                }
+            }
+        }
+
+        function handleInput(e) {
+            const el = e.target;
+            if (!isCepField(el)) return;
+
+            el.maxLength = 9;
+            const clean = el.value.replace(/\D/g, '').slice(0, 8);
+            const formatted = formatCep(clean);
+            if (el.value !== formatted) {
+                el.value = formatted;
+            }
+
+            if (clean.length === 8) {
+                processCep(el);
+            }
+        }
+
+        document.addEventListener('input', handleInput, true);
+        document.addEventListener('blur', (e) => {
+            if (isCepField(e.target)) {
+                handleInput(e);
+            }
+        }, true);
+
+        function formatExisting() {
+            document.querySelectorAll('input#cep, input[name="cep"], input[data-mask="cep"]').forEach(input => {
+                if (input.value) {
+                    input.value = formatCep(input.value);
+                    input._lastFetched = input.value.replace(/\D/g, '');
+                }
+            });
+        }
+
+        if (document.readyState !== 'loading') {
+            formatExisting();
+        } else {
+            document.addEventListener('DOMContentLoaded', formatExisting);
+        }
+    })();
+    </script>
+
+    <!-- Theme Toggle Logic -->
+    <script>
+    (function() {
+        function updateThemeIcons() {
+            var isDark = document.documentElement.classList.contains('dark');
+            var darkIcon = document.getElementById('theme-toggle-dark-icon');
+            var lightIcon = document.getElementById('theme-toggle-light-icon');
+            if (darkIcon && lightIcon) {
+                if (isDark) {
+                    darkIcon.classList.add('hidden');
+                    lightIcon.classList.remove('hidden');
+                } else {
+                    lightIcon.classList.add('hidden');
+                    darkIcon.classList.remove('hidden');
+                }
+            }
+        }
+
+        window.toggleTheme = function() {
+            var isDark = document.documentElement.classList.contains('dark');
+            if (isDark) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+            updateThemeIcons();
+        };
+
+        if (document.readyState !== 'loading') {
+            updateThemeIcons();
+        } else {
+            document.addEventListener('DOMContentLoaded', updateThemeIcons);
+        }
+    })();
+    </script>
 </body>
 </html>

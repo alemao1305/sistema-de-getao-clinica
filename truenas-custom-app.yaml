@@ -1,10 +1,10 @@
 # ==============================================================================
-# OPÇÃO 1 (RECOMENDADA / INFALÍVEL): CLÍNICA FABRIS COM BANCO INTEGRADO (SQLite)
+# CLÍNICA FABRIS — CONFIGURAÇÃO PARA TRUENAS SCALE (COM MARIADB 10.11)
 # ==============================================================================
-# Por que esta opção é a melhor no TrueNAS:
-# 1. Não precisa de container do MariaDB (menos consumo de memória RAM).
-# 2. Não sofre com erro de "Access Denied" de IPv6 nem de permissão de pasta do ZFS.
-# 3. Sobe em 3 segundos pronto para uso.
+# Host de acesso: http://192.168.1.134:8090
+# Pastas no TrueNAS:
+#   - /mnt/server/apps/clinica/storage
+#   - /mnt/server/apps/clinica/mariadb
 # ==============================================================================
 
 version: "3.8"
@@ -25,25 +25,52 @@ services:
       APP_TIMEZONE: "America/Sao_Paulo"
       APP_LOCALE: "pt_BR"
 
-      # Banco SQLite Integrado Persistente
-      DB_CONNECTION: sqlite
+      # Banco de Dados MariaDB
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: clinica_db
+      DB_USERNAME: clinica_user
+      DB_PASSWORD: "clinica_secure_password_2026"
 
-      # Sessões e Cache estáveis
+      # Sessões e Cache no Banco
       SESSION_DRIVER: database
       SESSION_SECURE_COOKIE: "false"
       CACHE_STORE: database
 
       RUN_MIGRATIONS: "true"
     volumes:
-      # Volumes gerenciados automaticamente pelo TrueNAS (sem conflito de permissão)
-      - clinica_storage:/var/www/storage
-      - clinica_database:/var/www/database
+      - /mnt/server/apps/clinica/storage:/var/www/storage
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - clinica_net
 
-volumes:
-  clinica_storage:
-    name: clinica_storage
-  clinica_database:
-    name: clinica_database
+  db:
+    image: mariadb:10.11
+    container_name: clinica_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "root_clinica_password_2026"
+      MYSQL_DATABASE: clinica_db
+      MYSQL_USER: clinica_user
+      MYSQL_PASSWORD: "clinica_secure_password_2026"
+    volumes:
+      - /mnt/server/apps/clinica/mariadb:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - clinica_net
+
+networks:
+  clinica_net:
+    name: clinica_net
+    driver: bridge
+    enable_ipv6: false
 
 x-portals:
   - host: 0.0.0.0
