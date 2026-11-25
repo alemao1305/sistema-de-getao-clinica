@@ -29,8 +29,17 @@ class AgendaController extends Controller
         $status = $request->get('status');
 
         $user = Auth::user();
-        if ($user->isFisioterapeuta() && !$profissionalId) {
-            $profissionalId = $user->id; // Fisioterapeuta visualiza sua agenda por padrão
+        $pacienteId = null;
+
+        if ($user->isFisioterapeuta()) {
+            // Fisioterapeuta visualiza estritamente os agendamentos destinados a ele
+            $profissionalId = $user->id;
+        } elseif ($user->isPaciente()) {
+            // Paciente visualiza estritamente os seus próprios agendamentos
+            $paciente = Paciente::where('cpf', $user->cpf)
+                ->when($user->email, fn($q) => $q->orWhere('email', $user->email))
+                ->first();
+            $pacienteId = $paciente ? $paciente->id : -1;
         }
 
         // Calcula o intervalo de datas conforme o modo de visualização
@@ -43,6 +52,7 @@ class AgendaController extends Controller
         $query = Agendamento::with(['paciente', 'profissional', 'sala', 'servico', 'pacientePacote'])
             ->whereBetween('data_hora_inicio', [$dataInicio, $dataFim])
             ->when($profissionalId, fn($q) => $q->where('profissional_id', $profissionalId))
+            ->when($pacienteId !== null, fn($q) => $q->where('paciente_id', $pacienteId))
             ->when($salaId, fn($q) => $q->where('sala_id', $salaId))
             ->when($status, fn($q) => $q->where('status', $status))
             ->orderBy('data_hora_inicio', 'asc');
@@ -60,10 +70,14 @@ class AgendaController extends Controller
             ->get();
 
         // Dados auxiliares para filtros e modais
-        $profissionais = User::whereIn('role', ['fisioterapeuta', 'proprietaria'])
-            ->where('is_active', true)
-            ->orderBy('name')
-            ->get();
+        if ($user->isFisioterapeuta()) {
+            $profissionais = User::where('id', $user->id)->get();
+        } else {
+            $profissionais = User::whereIn('role', ['fisioterapeuta', 'proprietaria'])
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get();
+        }
         $salas = Sala::where('ativa', true)->orderBy('nome')->get();
         $servicos = Servico::where('ativo', true)->orderBy('nome')->get();
         $pacientes = Paciente::where('status', 'ativo')->orderBy('nome')->get();
@@ -192,8 +206,10 @@ class AgendaController extends Controller
             $msg .= " Nota: os seguintes horários não foram agendados devido a conflito de agenda: " . implode(', ', $conflitosRecorrencia);
         }
 
-        return redirect()->route('agenda.index', ['data' => $validated['data']])
-            ->with('success', $msg);
+        return redirect()->route('agenda.index', [
+            'data' => $validated['data'],
+            'profissional_id' => $validated['profissional_id'],
+        ])->with('success', $msg);
     }
 
     public function updateStatus(Request $request, $id)

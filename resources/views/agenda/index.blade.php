@@ -111,6 +111,16 @@
             <input type="hidden" name="data" value="{{ $dataRef->format('Y-m-d') }}">
             <input type="hidden" name="modo" value="{{ $viewMode }}">
 
+            @if(auth()->user()->isFisioterapeuta())
+            <div class="flex items-center gap-1.5">
+                <span class="font-semibold text-slate-500">Profissional:</span>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-teal-50 text-teal-800 font-bold text-xs border border-teal-200">
+                    <span class="w-2 h-2 rounded-full" style="background-color: {{ auth()->user()->color ?? '#0d9488' }}"></span>
+                    {{ auth()->user()->name }}
+                </span>
+                <input type="hidden" name="profissional_id" value="{{ auth()->user()->id }}">
+            </div>
+            @else
             <!-- Profissional Filter -->
             <div class="flex items-center gap-1.5">
                 <label for="f_prof" class="font-semibold text-slate-500">Profissional:</label>
@@ -124,6 +134,7 @@
                     @endforeach
                 </select>
             </div>
+            @endif
 
             <!-- Sala Filter -->
             <div class="flex items-center gap-1.5">
@@ -379,13 +390,21 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Fisioterapeuta *</label>
-                        <select name="profissional_id" required class="w-full text-xs rounded-xl border border-slate-300 p-2.5 focus:ring-teal-600">
-                            @foreach($profissionais as $prof)
-                                <option value="{{ $prof->id }}" {{ (string)$profissionalId === (string)$prof->id ? 'selected' : '' }}>
-                                    {{ $prof->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                        @if(auth()->user()->isFisioterapeuta())
+                            <input type="hidden" name="profissional_id" value="{{ auth()->user()->id }}">
+                            <div class="w-full text-xs rounded-xl border border-slate-200 bg-slate-100 p-2.5 text-slate-700 font-semibold flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full" style="background-color: {{ auth()->user()->color ?? '#0d9488' }}"></span>
+                                <span>{{ auth()->user()->name }}</span>
+                            </div>
+                        @else
+                            <select name="profissional_id" required class="w-full text-xs rounded-xl border border-slate-300 p-2.5 focus:ring-teal-600">
+                                @foreach($profissionais as $prof)
+                                    <option value="{{ $prof->id }}" {{ (string)($profissionalId ?: auth()->user()->id) === (string)$prof->id ? 'selected' : '' }}>
+                                        {{ $prof->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        @endif
                     </div>
 
                     <div>

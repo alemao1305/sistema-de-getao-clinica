@@ -96,34 +96,40 @@
                 </div>
 
                 <div class="sm:col-span-3">
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">CEP</label>
-                    <input type="text" name="cep" value="{{ old('cep', $config->cep) }}"
-                           class="w-full text-xs rounded-xl border border-slate-300 p-2.5">
+                    <label for="cep" class="block text-xs font-semibold text-slate-700 mb-1">CEP</label>
+                    <div class="relative">
+                        <input type="text" id="cep" name="cep" value="{{ old('cep', $config->cep) }}" placeholder="00000-000" maxlength="9"
+                               class="w-full text-xs rounded-xl border border-slate-300 p-2.5 pr-9 focus:ring-1 focus:ring-teal-600 focus:border-teal-600">
+                        <div id="cep-loading" class="hidden absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-teal-600">
+                            <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
+                        </div>
+                    </div>
+                    <span id="cep-feedback" class="text-[11px] text-slate-500 mt-1 block min-h-[16px] transition-colors"></span>
                 </div>
                 <div class="sm:col-span-7">
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Logradouro</label>
-                    <input type="text" name="logradouro" value="{{ old('logradouro', $config->logradouro) }}"
+                    <label for="logradouro" class="block text-xs font-semibold text-slate-700 mb-1">Logradouro</label>
+                    <input type="text" id="logradouro" name="logradouro" value="{{ old('logradouro', $config->logradouro) }}"
                            class="w-full text-xs rounded-xl border border-slate-300 p-2.5">
                 </div>
                 <div class="sm:col-span-2">
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Número</label>
-                    <input type="text" name="numero" value="{{ old('numero', $config->numero) }}"
+                    <label for="numero" class="block text-xs font-semibold text-slate-700 mb-1">Número</label>
+                    <input type="text" id="numero" name="numero" value="{{ old('numero', $config->numero) }}"
                            class="w-full text-xs rounded-xl border border-slate-300 p-2.5">
                 </div>
 
                 <div class="sm:col-span-5">
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Bairro</label>
-                    <input type="text" name="bairro" value="{{ old('bairro', $config->bairro) }}"
+                    <label for="bairro" class="block text-xs font-semibold text-slate-700 mb-1">Bairro</label>
+                    <input type="text" id="bairro" name="bairro" value="{{ old('bairro', $config->bairro) }}"
                            class="w-full text-xs rounded-xl border border-slate-300 p-2.5">
                 </div>
                 <div class="sm:col-span-5">
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Cidade</label>
-                    <input type="text" name="cidade" value="{{ old('cidade', $config->cidade) }}"
+                    <label for="cidade" class="block text-xs font-semibold text-slate-700 mb-1">Cidade</label>
+                    <input type="text" id="cidade" name="cidade" value="{{ old('cidade', $config->cidade) }}"
                            class="w-full text-xs rounded-xl border border-slate-300 p-2.5">
                 </div>
                 <div class="sm:col-span-2">
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">UF</label>
-                    <input type="text" name="estado" value="{{ old('estado', $config->estado) }}" maxlength="2"
+                    <label for="estado" class="block text-xs font-semibold text-slate-700 mb-1">UF</label>
+                    <input type="text" id="estado" name="estado" value="{{ old('estado', $config->estado) }}" maxlength="2"
                            class="w-full text-xs rounded-xl border border-slate-300 p-2.5 uppercase">
                 </div>
             </div>

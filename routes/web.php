@@ -19,6 +19,7 @@ use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\ConvenioController;
 use App\Http\Controllers\ProdutoController;
+use App\Http\Controllers\CepController;
 
 /*
 |--------------------------------------------------------------------------
@@ -188,6 +189,9 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('auditoria')->name('auditoria.')->group(function () {
             Route::get('/', [AuditLogController::class, 'index'])->name('index');
         });
+
+        // Consulta de Endereço por CEP
+        Route::get('/consulta-cep/{cep}', [CepController::class, 'consultar'])->name('cep.consultar');
     });
 
 });

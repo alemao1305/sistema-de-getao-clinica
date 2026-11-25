@@ -144,8 +144,14 @@
             <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
                 <div class="sm:col-span-3">
                     <label for="cep" class="block text-xs font-semibold text-slate-700 mb-1">CEP</label>
-                    <input type="text" id="cep" name="cep" value="{{ old('cep', $paciente->cep) }}"
-                           class="w-full text-sm rounded-xl border border-slate-300 p-2.5 focus:ring-1 focus:ring-teal-600 focus:border-teal-600">
+                    <div class="relative">
+                        <input type="text" id="cep" name="cep" value="{{ old('cep', $paciente->cep) }}" placeholder="00000-000" maxlength="9"
+                               class="w-full text-sm rounded-xl border border-slate-300 p-2.5 pr-9 focus:ring-1 focus:ring-teal-600 focus:border-teal-600">
+                        <div id="cep-loading" class="hidden absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-teal-600">
+                            <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
+                        </div>
+                    </div>
+                    <span id="cep-feedback" class="text-[11px] text-slate-500 mt-1 block min-h-[16px] transition-colors"></span>
                 </div>
 
                 <div class="sm:col-span-7">
